@@ -28,3 +28,10 @@ class Showtime(models.Model):
         return f"{self.movie.title} در {self.theater} - {self.start_time}"
     
     
+class Seat(models.Model):
+    theater = models.ForeignKey(Theater, on_delete=models.CASCADE, related_name="seats")
+    seat_number = models.CharField(max_length=10)  
+    is_reserved = models.BooleanField(default=False) 
+
+    def __str__(self):
+        return f"{self.theater} - {self.seat_number}"

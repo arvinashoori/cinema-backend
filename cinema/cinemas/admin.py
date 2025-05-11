@@ -1,6 +1,5 @@
-# cinemas/admin.py
 from django.contrib import admin
-from cinemas.models import Cinema, Theater, Showtime
+from cinemas.models import Cinema, Theater, Showtime, Seat
 
 @admin.register(Cinema)
 class CinemaAdmin(admin.ModelAdmin):
@@ -13,22 +12,33 @@ class TheaterAdmin(admin.ModelAdmin):
     search_fields = ['name', 'cinema__name']
     #list_filter = ['cinema']
 
-    def get_cinema_name(self, obj):
+    def get_cinema_name(self, obj): 
         return obj.Cinema.name if obj.Cinema else "بدون سینما"
-    get_cinema_name.short_description = 'سینما'
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        current_seat_count = obj.seats.count()
+        if obj.total_seats > current_seat_count:
+
+            for i in range(current_seat_count + 1, obj.total_seats + 1):
+                seat_number = f"A{i}" 
+                Seat.objects.get_or_create(theater=obj, seat_number=seat_number, defaults={'is_reserved': False})
+        elif obj.total_seats < current_seat_count:
+            seats_to_delete = obj.seats.all()[obj.total_seats:]
+            for seat in seats_to_delete:
+                seat.delete()
 
 @admin.register(Showtime)
 class ShowtimeAdmin(admin.ModelAdmin):
     list_display = ['movie', 'theater', 'start_time', 'price']
-    #list_filter = ['theater', 'start_time']  # فعلاً کامنت شده
+    list_filter = ['theater', 'start_time']
     search_fields = ['movie__title', 'theater__name']
-    autocomplete_fields = ['movie', 'theater']  # برای جستجوی بهتر
+    autocomplete_fields = ['movie', 'theater']
 
-    def get_movie_title(self, obj):
-        return obj.movie.title if obj.movie else "بدون فیلم"
-    get_movie_title.short_description = 'فیلم'
-
-    def get_theater_name(self, obj):
-        return obj.theater.name if obj.theater else "بدون سالن"
-    get_theater_name.short_description = 'سالن'
+@admin.register(Seat)
+class SeatAdmin(admin.ModelAdmin):
+    list_display = ['theater', 'seat_number', 'is_reserved']
+    list_filter = ['is_reserved', 'theater']
+    search_fields = ['seat_number', 'theater__name']
+    autocomplete_fields = ['theater']
