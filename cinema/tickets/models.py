@@ -9,9 +9,10 @@ class Ticket(models.Model):
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE, related_name="tickets")
     purchase_time = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):        
-        self.seat.is_reserved = True
-        self.seat.save()
+    def save(self, *args, **kwargs):
+        if self.seat and not self.seat.is_reserved:
+            self.seat.is_reserved = True
+            self.seat.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
