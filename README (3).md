@@ -27,18 +27,17 @@ pip install -r requirements.txt
 ---
 
 ## ⚙️ Environment Variables
-Create a `.env` file in the project root:
 
-```
+### Create a `.env` file in the project root:
+```bash
 DJANGO_SECRET_KEY=replace_me
 DJANGO_DEBUG=True
-
 OPENROUTER_API_KEY=sk-REPLACE_ME
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_MODEL=openai/gpt-4o-mini
+```
 
 ---
-
 
 ## ⚙️ Database Setup
 
